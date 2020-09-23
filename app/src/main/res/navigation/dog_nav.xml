@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/dog_nav"
+    app:startDestination="@id/listFragment"
+    tools:ignore="UnusedNavigation">
+
+    <fragment
+        android:id="@+id/listFragment"
+        android:name="com.example.dogapp.ListFragment"
+        android:label="fragment_list"
+        tools:layout="@layout/fragment_list" >
+        <action
+            android:id="@+id/action_listFragment_to_detailFragment"
+            app:destination="@id/detailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/detailFragment"
+        android:name="com.example.dogapp.DetailFragment"
+        android:label="fragment_detail"
+        tools:layout="@layout/fragment_detail" >
+        <argument
+            android:name="dogBreed"
+            app:argType="com.example.dogapp.model.DogBreed"
+            app:nullable="true" />
+    </fragment>
+</navigation>
