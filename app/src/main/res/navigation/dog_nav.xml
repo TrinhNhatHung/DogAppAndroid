@@ -20,6 +20,7 @@
         android:name="com.example.dogapp.DetailFragment"
         android:label="fragment_detail"
         tools:layout="@layout/fragment_detail" >
+
         <argument
             android:name="dogBreed"
             app:argType="com.example.dogapp.model.DogBreed"

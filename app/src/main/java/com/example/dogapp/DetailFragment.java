@@ -7,17 +7,18 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.SearchView;
-import android.widget.TextView;
 
+import com.example.dogapp.databinding.FragmentDetailBinding;
 import com.example.dogapp.model.DogBreed;
-import com.example.dogapp.view.MyAdapter;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,11 +40,8 @@ public class DetailFragment extends Fragment {
     private String mParam1;
     private String mParam2;
     private ImageView imDog;
-    private TextView tvName;
-    private TextView tvLifeSpan;
-    private TextView tvOrigin;
-    private TextView tvTemperament;
     private DogBreed dogBreed;
+    private FragmentDetailBinding binding ;
     public DetailFragment() {
         // Required empty public constructor
     }
@@ -69,62 +67,39 @@ public class DetailFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
-
             DetailFragmentArgs args = DetailFragmentArgs.fromBundle(getArguments());
             dogBreed = args.getDogBreed();
         }
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_detail, container, false);
+        binding = DataBindingUtil.inflate(getLayoutInflater(),R.layout.fragment_detail,null,false);
+        View v = binding.getRoot();
+        binding.setDogBreed(dogBreed);
+        return v;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        tvLifeSpan = view.findViewById(R.id.life_span);
-        tvName = view.findViewById(R.id.name);
-        tvTemperament = view.findViewById(R.id.temperament);
-        tvOrigin = view.findViewById(R.id.origin);
         imDog = view.findViewById(R.id.img_dog);
-        tvOrigin.setText("Origin: " +dogBreed.getOrigin());
-        tvName.setText(dogBreed.getName());
-        tvLifeSpan.setText("Life span: " + dogBreed.getLifeSpan());
-        tvTemperament.setText("Temperament: " + dogBreed.getTemperament());
-        new AsyncDownLoadImage().execute(dogBreed.getUrl());
-    }
-
-    public class  AsyncDownLoadImage extends AsyncTask<String,Void, Bitmap> {
-
-
-        public AsyncDownLoadImage() {
-
-        }
-
-        @Override
-        protected Bitmap doInBackground(String... strings) {
-            String url = strings[0];
-            Bitmap bitmap = null;
-            try {
-                InputStream inputStream = new URL(url).openStream();
-                bitmap = BitmapFactory.decodeStream(inputStream);
-            } catch (IOException e) {
-                e.printStackTrace();
+        Picasso.with(getContext()).load(dogBreed.url).into(imDog, new Callback() {
+            @Override
+            public void onSuccess() {
+                view.findViewById(R.id.pb_loading).setVisibility(View.GONE);
             }
-            return bitmap;
-        }
 
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            super.onPostExecute(bitmap);
-            imDog.setImageBitmap(bitmap);
-        }
+            @Override
+            public void onError() {
+
+            }
+        });
     }
+
 }
