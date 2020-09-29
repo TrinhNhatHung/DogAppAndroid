@@ -55,29 +55,70 @@
                     android:textColor="#009688"
                     android:textSize="18sp"
                     android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/origin"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="20dp"
-                    android:text='@{"Origin: " +dogBreed.origin}'
-                    android:textColor="#222121" />
+                    android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/life_span"
+                    <TextView
+                        android:id="@+id/label_origin"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="3dp"
+                        android:text="Origin:" />
+
+                    <TextView
+                        android:id="@+id/origin"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="20dp"
+                        android:text='@{"Origin: " +dogBreed.origin}'
+                        android:textColor="#222121" />
+                </LinearLayout>
+
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="20dp"
-                    android:text='@{"Life span: "+dogBreed.lifeSpan}'
-                    android:textColor="#222121" />
+                    android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/temperament"
+                    <TextView
+                        android:id="@+id/label_lifespan"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="3dp"
+                        android:text="Life span:" />
+
+                    <TextView
+                        android:id="@+id/life_span"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="20dp"
+                        android:text='@{"Life span: "+dogBreed.lifeSpan}'
+                        android:textColor="#222121" />
+                </LinearLayout>
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text='@{"Temperament: "+dogBreed.temperament}'
-                    android:textColor="#222121" />
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/label_temperament"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="3dp"
+                        android:text="Temperament:" />
+
+                    <TextView
+                        android:id="@+id/temperament"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text='@{"Temperament: "+dogBreed.temperament}'
+                        android:textColor="#222121" />
+                </LinearLayout>
+
+
             </LinearLayout>
 
         </LinearLayout>

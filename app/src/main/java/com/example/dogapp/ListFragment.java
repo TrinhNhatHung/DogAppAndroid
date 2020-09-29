@@ -3,12 +3,17 @@ package com.example.dogapp;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
@@ -18,14 +23,12 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.EditText;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.dogapp.model.DogBreed;
 import com.example.dogapp.view.MyAdapter;
+import com.example.dogapp.viewmodel.DogBreedDao;
+import com.example.dogapp.viewmodel.DogBreedDatabase;
 import com.example.dogapp.viewmodel.DogsApiService;
 import com.example.dogapp.viewmodel.MyViewModel;
 
@@ -40,10 +43,13 @@ public class ListFragment extends Fragment {
     private RecyclerView rvDogs;
     private ArrayList<DogBreed> mDogBreeds;
     private MyAdapter myAdapter;
-    private DogsApiService apiService;
     private MyViewModel model;
     private Toolbar toolbar;
     private SearchView svDog;
+    private DogBreedDao dogBreedDao;
+    private DogBreedDatabase dogBreedDatabase;
+    private DogsApiService dogsApiService;
+    private SwipeRefreshLayout srlLayout;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -58,35 +64,21 @@ public class ListFragment extends Fragment {
         rvDogs = view.findViewById(R.id.rv_dogs);
         toolbar = view.findViewById(R.id.toolbar);
         svDog = toolbar.findViewById(R.id.sv_dog);
-
-        rvDogs.setLayoutManager(new GridLayoutManager(getContext(),2));
+        srlLayout = view.findViewById(R.id.swipe_refresh);
+        rvDogs.setLayoutManager(new GridLayoutManager(getContext(), 2));
         mDogBreeds = new ArrayList<DogBreed>();
-        apiService = new DogsApiService();
-        apiService.getAllDogs()
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new DisposableSingleObserver<List<DogBreed>>() {
-                    @Override
-                    public void onSuccess(@NonNull List<DogBreed> list) {
-                        mDogBreeds = (ArrayList<DogBreed>) list;
-                        model = new ViewModelProvider(ListFragment.this).get(MyViewModel.class);
-                        model.loadDogBreeds(mDogBreeds);
-                    }
 
-                    @Override
-                    public void onError(@NonNull Throwable e) {
-
-                    }
-                });
         model = new ViewModelProvider(this).get(MyViewModel.class);
         model.getArrayLiveData().observe(getViewLifecycleOwner(), new Observer<List<DogBreed>>() {
             @Override
             public void onChanged(List<DogBreed> dogBreeds) {
                 myAdapter = new MyAdapter((ArrayList<DogBreed>) dogBreeds, getContext());
-                myAdapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.ALLOW);
                 rvDogs.setAdapter(myAdapter);
             }
         });
+
+        dogsApiService = new DogsApiService();
+        loadDataToUI();
 
         rvDogs.setOnScrollChangeListener(new View.OnScrollChangeListener() {
             @Override
@@ -95,8 +87,9 @@ public class ListFragment extends Fragment {
             }
         });
 
-        ItemTouchHelper.SimpleCallback touchHelperCallBack = new ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.LEFT|ItemTouchHelper.RIGHT) {
+        ItemTouchHelper.SimpleCallback touchHelperCallBack = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             private final ColorDrawable background = new ColorDrawable();
+
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
                 return false;
@@ -142,5 +135,117 @@ public class ListFragment extends Fragment {
                 return false;
             }
         });
+        srlLayout.setColorSchemeColors(Color.GREEN,Color.BLUE,Color.RED);
+        srlLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refreshLayout();
+            }
+        });
+    }
+
+    public class AsyncLoadDataOffline extends AsyncTask<MyViewModel, MyViewModel, Void> {
+
+        private List<DogBreed> list;
+
+        @Override
+        protected Void doInBackground(MyViewModel... myViewModels) {
+            dogBreedDatabase = DogBreedDatabase.getInstance(getContext());
+            dogBreedDao = dogBreedDatabase.dogBreedDao();
+            list = dogBreedDao.getAllDogBreed();
+            publishProgress(myViewModels);
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(MyViewModel... values) {
+            super.onProgressUpdate(values);
+            values[0].loadDogBreeds((ArrayList<DogBreed>) list);
+        }
+    }
+
+    public class AsyncLoadData extends AsyncTask<MyViewModel, MyViewModel, Void> {
+        private List<DogBreed> list;
+
+        public AsyncLoadData(List<DogBreed> list) {
+            this.list = list;
+        }
+
+        @Override
+        protected Void doInBackground(MyViewModel... myViewModels) {
+            dogBreedDatabase = DogBreedDatabase.getInstance(getContext());
+            dogBreedDao = dogBreedDatabase.dogBreedDao();
+            dogBreedDao.deleteAll();
+            dogBreedDao.insertDogBreed((ArrayList<DogBreed>) this.list);
+            publishProgress(myViewModels);
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(MyViewModel... values) {
+            super.onProgressUpdate(values);
+            values[0].loadDogBreeds((ArrayList<DogBreed>) list);
+        }
+    }
+
+    public class AsyncRefreshData extends AsyncTask<MyViewModel,MyViewModel,Void>{
+        private List<DogBreed> list;
+
+        public AsyncRefreshData(List<DogBreed> list) {
+            this.list = list;
+        }
+
+        @Override
+        protected Void doInBackground(MyViewModel... myViewModels) {
+            dogBreedDatabase = DogBreedDatabase.getInstance(getContext());
+            dogBreedDao = dogBreedDatabase.dogBreedDao();
+            dogBreedDao.deleteAll();
+            dogBreedDao.insertDogBreed((ArrayList<DogBreed>) this.list);
+            publishProgress(myViewModels);
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(MyViewModel... values) {
+            super.onProgressUpdate(values);
+            values[0].loadDogBreeds((ArrayList<DogBreed>) list);
+            srlLayout.setRefreshing(false);
+            Toast.makeText(getContext(),"Data updated",Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void refreshLayout (){
+        dogsApiService.getAllDogs()
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableSingleObserver<List<DogBreed>>() {
+                    @Override
+                    public void onSuccess(@NonNull List<DogBreed> list) {
+                        new AsyncRefreshData(list).execute(model);
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        srlLayout.setRefreshing(false);
+                        Toast.makeText(getContext(),"No internet",Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    public void loadDataToUI (){
+        dogsApiService.getAllDogs()
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableSingleObserver<List<DogBreed>>() {
+                    @Override
+                    public void onSuccess(@NonNull List<DogBreed> list) {
+                        new AsyncLoadData(list).execute(model);
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        new AsyncLoadDataOffline().execute(model);
+                    }
+                });
     }
 }

@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
+import androidx.databinding.ViewDataBinding;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
@@ -31,8 +32,6 @@ import java.util.List;
 public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Filterable {
     private static ArrayList<DogBreed> mDogBreed;
     private ArrayList<DogBreed> mDogBreedAll;
-    ItemDogBinding itemDogBinding;
-    ItemMenuBinding itemMenuBinding;
     private Context context;
     private final int SHOW_MENU = 1;
     private final int HIDE_MENU = 2;
@@ -48,20 +47,20 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> imp
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v;
         if (viewType == HIDE_MENU){
-            itemDogBinding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()),R.layout.item_dog,parent,false);
+            ItemDogBinding itemDogBinding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()),R.layout.item_dog,parent,false);
             v = itemDogBinding.getRoot();
-            return new  MyViewHolder(v);
+            return new  MyViewHolder(v, itemDogBinding);
         } else {
-            itemMenuBinding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()),R.layout.item_menu,parent,false);
+            ItemMenuBinding itemMenuBinding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()),R.layout.item_menu,parent,false);
             v = itemMenuBinding.getRoot();
-            return new MenuViewHolder(v);
+            return new MenuViewHolder(v,itemMenuBinding);
         }
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
          if (holder instanceof MyViewHolder){
-             itemDogBinding.setDogBreed(mDogBreed.get(position));
+             ((MyViewHolder) holder).binding.setDogBreed(mDogBreed.get(position));
              String url = mDogBreed.get(position).url;
              Picasso.with(context).load(url).into(((MyViewHolder) holder).imDog, new Callback() {
                  @Override
@@ -77,7 +76,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> imp
          }
 
          if (holder instanceof MenuViewHolder){
-             itemMenuBinding.setDogBreed(mDogBreed.get(position));
+             ((MenuViewHolder) holder).binding.setDogBreed(mDogBreed.get(position));
          }
     }
 
@@ -131,14 +130,13 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> imp
         private View view;
         private ImageView imDog;
         private ProgressBar progressBar;
-        private TextView tvName;
-        private TextView tvTem;
-        public MyViewHolder(View v) {
+        private final ItemDogBinding binding;
+
+        public MyViewHolder(View v, final ItemDogBinding binding) {
             super(v);
             view = v;
+            this.binding = binding;
             imDog = view.findViewById(R.id.img_dog);
-            tvName = view.findViewById(R.id.name);
-            tvTem = view.findViewById(R.id.temperament);
             progressBar = view.findViewById(R.id.pb_loading);
             view.setOnClickListener(new View.OnClickListener() {
               @Override
@@ -148,13 +146,16 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> imp
               }
             });
         }
+
     }
 
     public class MenuViewHolder extends RecyclerView.ViewHolder{
         View view;
-        public MenuViewHolder(View view){
+        private final ItemMenuBinding binding;
+        public MenuViewHolder(View view,final ItemMenuBinding binding){
             super(view);
             this.view = view;
+            this.binding = binding;
             this.view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

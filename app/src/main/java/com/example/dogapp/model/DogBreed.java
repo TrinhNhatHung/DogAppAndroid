@@ -3,28 +3,43 @@ package com.example.dogapp.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
 import com.google.gson.annotations.SerializedName;
 
-
+@Entity
 public class DogBreed implements Parcelable {
 
-    @SerializedName("id")
-     public final int id;
+    @PrimaryKey (autoGenerate = true)
+    @ColumnInfo
+     public final int dogId;
+
+    @ColumnInfo
     @SerializedName("name")
      public final String name;
+
+    @ColumnInfo
     @SerializedName("life_span")
      public final String lifeSpan;
+
+    @ColumnInfo
     @SerializedName("origin")
      public final String origin;
+
+    @ColumnInfo
     @SerializedName("url")
      public final String url;
+
+    @ColumnInfo
     @SerializedName("temperament")
      public final String temperament;
 
     private boolean showMenu = false;
 
-    public DogBreed(int id, String name, String lifeSpan, String origin, String url, String temperament) {
-        this.id = id;
+    public DogBreed(int dogId, String name, String lifeSpan, String origin, String url, String temperament) {
+        this.dogId = dogId;
         this.name = name;
         this.lifeSpan = lifeSpan;
         this.origin = origin;
@@ -33,7 +48,7 @@ public class DogBreed implements Parcelable {
     }
 
     protected DogBreed(Parcel in) {
-        id = in.readInt();
+        dogId = in.readInt();
         name = in.readString();
         lifeSpan = in.readString();
         origin = in.readString();
@@ -69,7 +84,7 @@ public class DogBreed implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeInt(id);
+        parcel.writeInt(dogId);
         parcel.writeString(name);
         parcel.writeString(lifeSpan);
         parcel.writeString(origin);
