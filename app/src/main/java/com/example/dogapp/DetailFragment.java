@@ -70,8 +70,7 @@ public class DetailFragment extends Fragment {
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
-            DetailFragmentArgs args = DetailFragmentArgs.fromBundle(getArguments());
-            dogBreed = args.getDogBreed();
+            dogBreed = (DogBreed) getArguments().getSerializable("dogBreed");
         }
 
     }

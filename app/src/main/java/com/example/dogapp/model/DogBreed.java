@@ -9,8 +9,10 @@ import androidx.room.PrimaryKey;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 @Entity
-public class DogBreed implements Parcelable {
+public class DogBreed implements Parcelable, Serializable {
 
     @PrimaryKey (autoGenerate = true)
     @ColumnInfo

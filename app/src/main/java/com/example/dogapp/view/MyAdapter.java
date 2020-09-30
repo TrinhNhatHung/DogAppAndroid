@@ -1,6 +1,7 @@
 package com.example.dogapp.view;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,6 +62,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> imp
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
          if (holder instanceof MyViewHolder){
              ((MyViewHolder) holder).binding.setDogBreed(mDogBreed.get(position));
+             ((MyViewHolder) holder).dogBreed = mDogBreed.get(position);
              String url = mDogBreed.get(position).url;
              Picasso.with(context).load(url).into(((MyViewHolder) holder).imDog, new Callback() {
                  @Override
@@ -131,6 +133,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> imp
         private ImageView imDog;
         private ProgressBar progressBar;
         private final ItemDogBinding binding;
+        private DogBreed dogBreed;
 
         public MyViewHolder(View v, final ItemDogBinding binding) {
             super(v);
@@ -141,8 +144,9 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> imp
             view.setOnClickListener(new View.OnClickListener() {
               @Override
               public void onClick(View view) {
-                  NavDirections action = ListFragmentDirections.actionListFragmentToDetailFragment(mDogBreed.get(getAdapterPosition()));
-                  Navigation.findNavController(view).navigate(action);
+                  Bundle bundle = new Bundle();
+                  bundle.putSerializable("dogBreed",dogBreed);
+                  Navigation.findNavController(view).navigate(R.id.detailFragment,bundle);
               }
             });
         }

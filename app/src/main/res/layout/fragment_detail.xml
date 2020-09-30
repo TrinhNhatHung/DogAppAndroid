@@ -10,8 +10,7 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".DetailFragment"
-        >
+        tools:context=".DetailFragment">
 
         <ProgressBar
             android:id="@+id/pb_loading"
@@ -72,7 +71,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="20dp"
-                        android:text='@{"Origin: " +dogBreed.origin}'
+                        android:text='@{dogBreed.origin}'
                         android:textColor="#222121" />
                 </LinearLayout>
 
@@ -94,7 +93,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="20dp"
-                        android:text='@{"Life span: "+dogBreed.lifeSpan}'
+                        android:text='@{dogBreed.lifeSpan}'
                         android:textColor="#222121" />
                 </LinearLayout>
 
@@ -114,11 +113,9 @@
                         android:id="@+id/temperament"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text='@{"Temperament: "+dogBreed.temperament}'
+                        android:text='@{dogBreed.temperament}'
                         android:textColor="#222121" />
                 </LinearLayout>
-
-
             </LinearLayout>
 
         </LinearLayout>
